@@ -1,5 +1,5 @@
 import { NextFunction, Response, Router } from "express";
-import { Request, Session, User } from "./types";
+import { Request, Scanner, Session, User } from "./types";
 import HMAC from "crypto-js/hmac-sha512";
 import bcrypt from "bcrypt";
 import { randomBytes } from "crypto";
@@ -14,6 +14,7 @@ const users = new JsonFile<User[]>(
   join(__dirname, "../db_defaults/users.json"),
 );
 const sessions = new JsonFile<Session[]>(join(__dirname, "../db/sessions.json"), false, []);
+const scanners = new JsonFile<Scanner[]>(join(__dirname, "../db/scanners.json"), false, []);
 
 const checkAuth = async (req: Request, res: Response, next: NextFunction) => {
   const authorization = req.headers.authorization?.split(" ") ?? ["", ""];
@@ -60,6 +61,27 @@ export const checkToken = async (token: string | undefined): Promise<string> => 
   }
 
   return session.clientId;
+};
+
+export const checkScannerToken = async (token: string): Promise<string> => {
+  const splittedToken = token?.split(".") ?? ["", ""];
+  if (splittedToken.length !== 2) {
+    return "";
+  }
+  const correctSignature = HMAC(
+    splittedToken[0],
+    process.env.SESSION_SECRET ?? "secret",
+  ).toString();
+  if (correctSignature !== splittedToken[1]) {
+    return "";
+  }
+  const decodedToken = Buffer.from(splittedToken[0], "base64").toString();
+  const scanner = (await scanners.get()).find(({ token }) => token === decodedToken);
+  if (!scanner) {
+    return "";
+  }
+
+  return scanner.clientId;
 };
 
 export const generateToken = (id: string): string => {
@@ -151,4 +173,13 @@ router.post("/register", checkAuth, async (req, res) => {
     },
   ]);
   res.send({ success: true });
+});
+
+router.post("/registerScanner", checkAuth, async (req: Request, res) => {
+  const token = generateToken(req.clientId ?? "");
+  await scanners.set([
+    ...(await scanners.get()),
+    { token, clientId: req.clientId ?? "", id: uuid() },
+  ]);
+  res.send({ success: true, token });
 });

@@ -5,6 +5,11 @@ export interface User {
   username: string;
   password: string;
 }
+export interface Scanner {
+  id: string;
+  token: string;
+  clientId: string;
+}
 
 export interface Session {
   sessionId: string;
