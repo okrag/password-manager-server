@@ -6,6 +6,7 @@ import { randomBytes } from "crypto";
 import { JsonFile } from "./JsonFile";
 import { join } from "path";
 import { v4 as uuid } from "uuid";
+import { checkString } from "./utils";
 
 const users = new JsonFile<User[]>(
   join(__dirname, "../db/users.json"),
@@ -16,7 +17,7 @@ const users = new JsonFile<User[]>(
 const sessions = new JsonFile<Session[]>(join(__dirname, "../db/sessions.json"), false, []);
 const scanners = new JsonFile<Scanner[]>(join(__dirname, "../db/scanners.json"), false, []);
 
-const checkAuth = async (req: Request, res: Response, next: NextFunction) => {
+export const checkAuth = async (req: Request, res: Response, next: NextFunction) => {
   const authorization = req.headers.authorization?.split(" ") ?? ["", ""];
   if (authorization[0] !== "Bearer") {
     return res.status(403).send({
@@ -102,11 +103,7 @@ export const router = Router();
 
 router.post("/login", async (req, res) => {
   const { username, password, expiration } = req.body;
-  if (
-    typeof username !== "string" ||
-    typeof password !== "string" ||
-    typeof expiration !== "number"
-  ) {
+  if (!checkString(username, password) || typeof expiration !== "number") {
     return res.status(400).send({
       success: false,
       message: "Username, password and expiration required!",
@@ -145,7 +142,7 @@ router.post("/login", async (req, res) => {
 
 router.post("/register", checkAuth, async (req, res) => {
   const { username, password } = req.body;
-  if (typeof username !== "string" || typeof password !== "string") {
+  if (!checkString(username, password)) {
     return res.status(400).send({
       success: false,
       message: "Username and password required!",

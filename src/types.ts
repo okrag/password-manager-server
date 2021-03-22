@@ -1,5 +1,12 @@
 import { Request as ExpressRequest } from "express";
 
+export interface Password {
+  id: string;
+  site: string;
+  username: string;
+  password: string;
+}
+
 export interface User {
   id: string;
   username: string;

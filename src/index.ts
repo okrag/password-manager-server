@@ -12,7 +12,9 @@ const io = new SocketServer(server);
 io.on("connection", ioconnection);
 
 import { router as AuthRouter } from "./auth";
+import { router as PasswordsRouter } from "./passwords";
 app.use("/auth", AuthRouter);
+app.use("/passwords", PasswordsRouter);
 
 server.listen(3000, () => {
   console.log("Server running on port 3000");
