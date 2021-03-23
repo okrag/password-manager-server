@@ -37,7 +37,7 @@ export const checkAuth = async (req: Request, res: Response, next: NextFunction)
 };
 
 export const checkToken = async (token: string | undefined): Promise<string> => {
-  const splittedToken = token?.split(".") ?? ["", ""];
+  const splittedToken = token?.split(":") ?? ["", ""];
   if (splittedToken.length !== 2) {
     return "";
   }
