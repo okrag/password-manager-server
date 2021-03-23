@@ -3,10 +3,16 @@ dotenv.config();
 import express from "express";
 import { createServer } from "http";
 import { Server as SocketServer } from "socket.io";
+import cors from "cors";
 import ioconnection from "./ioconnection";
 
 const app = express();
 app.use(express.json());
+app.use(
+  cors({
+    origin: ["chrome-extension://pldibipgckolnegeiigfekiebjlmopjm"],
+  }),
+);
 const server = createServer(app);
 const io = new SocketServer(server);
 io.on("connection", ioconnection);
