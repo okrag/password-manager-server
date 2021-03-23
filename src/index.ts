@@ -6,15 +6,13 @@ import { Server as SocketServer } from "socket.io";
 import cors from "cors";
 import ioconnection from "./ioconnection";
 
+const originList = ["chrome-extension://pldibipgckolnegeiigfekiebjlmopjm"];
+
 const app = express();
 app.use(express.json());
-app.use(
-  cors({
-    origin: ["chrome-extension://pldibipgckolnegeiigfekiebjlmopjm"],
-  }),
-);
+app.use(cors({ origin: originList }));
 const server = createServer(app);
-const io = new SocketServer(server);
+const io = new SocketServer(server, { cors: { origin: originList } });
 io.on("connection", ioconnection);
 
 import { router as AuthRouter } from "./auth";
