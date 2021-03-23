@@ -102,11 +102,11 @@ export const getUserByUsername = async (username: string): Promise<User | undefi
 export const router = Router();
 
 router.post("/login", async (req, res) => {
-  const { username, password, expiration } = req.body;
-  if (!checkString(username, password) || typeof expiration !== "number") {
+  const { username, password } = req.body;
+  if (!checkString(username, password)) {
     return res.status(400).send({
       success: false,
-      message: "Username, password and expiration required!",
+      message: "Username and password required!",
     });
   }
   const user = await getUserByUsername(username);
@@ -133,7 +133,7 @@ router.post("/login", async (req, res) => {
       clientId: user.id,
       sessionId,
       token: token.split(":")[0],
-      expiresIn: expiration + Date.now(),
+      expiresIn: 1000 * 60 * 60 * 24 * 30 + Date.now(),
     },
   ]);
 
