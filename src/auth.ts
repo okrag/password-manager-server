@@ -48,8 +48,7 @@ export const checkToken = async (token: string | undefined): Promise<string> => 
   if (correctSignature !== splittedToken[1]) {
     return "";
   }
-  const decodedToken = Buffer.from(splittedToken[0], "base64").toString();
-  const session = (await sessions.get()).find(({ token }) => token === decodedToken);
+  const session = (await sessions.get()).find(({ token }) => token === splittedToken[0]);
   if (!session) {
     return "";
   }
@@ -76,8 +75,7 @@ export const checkScannerToken = async (token: string): Promise<string> => {
   if (correctSignature !== splittedToken[1]) {
     return "";
   }
-  const decodedToken = Buffer.from(splittedToken[0], "base64").toString();
-  const scanner = (await scanners.get()).find(({ token }) => token === decodedToken);
+  const scanner = (await scanners.get()).find(({ token }) => token === splittedToken[0]);
   if (!scanner) {
     return "";
   }
